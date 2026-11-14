@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d393a">
+<title>Nonos Coffee Shop · Tu tarjeta</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Junta sellos en Nonos Coffee Shop, Villavicencio, y cámbialos por café.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23224d48'/%3E%3Cpath d='M9 14h11v4a4 4 0 0 1-4 4h-3a4 4 0 0 1-4-4z' fill='none' stroke='%23dcc29a' stroke-width='1.8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Josefin+Sans:wght@300;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<header class="top">
+  <div class="brand" aria-label="Nonos Coffee Shop">
+    <svg class="steam" viewBox="0 0 40 40" aria-hidden="true">
+      <path class="s s1" d="M14 9c-3 3 3 5 0 8"/><path class="s s2" d="M20 6c-3 3 3 5 0 8"/><path class="s s3" d="M26 9c-3 3 3 5 0 8"/>
+      <path d="M8 22h22v5a8 8 0 0 1-8 8h-6a8 8 0 0 1-8-8z M30 24h2.5a3.5 3.5 0 0 1 0 7H29" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>
+    <span class="brand-name">NONOS</span>
+    <span class="brand-sub">coffee shop</span>
+  </div>
+</header>
+
+<main id="app">
+  <div id="loading" class="skeleton" aria-label="Cargando"><i></i><i></i><i></i></div>
+
+  <!-- Bienvenida -->
+  <section id="view-welcome" class="view" hidden>
+    <p class="eyebrow">Villavicencio · café de especialidad</p>
+    <h1 class="display">Cada visita<br><em>cuenta.</em></h1>
+    <p class="lead">Junta un sello cada vez que vengas a parchar, trabajar o leer. Sin app y sin cartón que se pierde en el bolsillo.</p>
+
+    <ul class="perks" aria-label="Cómo funciona">
+      <li><b>1</b><span>Crea tu tarjeta en 20 segundos.</span></li>
+      <li><b>2</b><span>Escanea el QR del mostrador al pagar.</span></li>
+      <li><b>3</b><span>Canjea premios a los 5 y a los 10 sellos.</span></li>
+    </ul>
+
+    <form id="form-join" class="form" autocomplete="off" novalidate>
+      <div class="field"><label for="j-name">Nombre</label><input id="j-name" maxlength="30" required autocomplete="given-name" placeholder="¿Cómo te decimos?"></div>
+      <div class="field"><label for="j-phone">Celular (WhatsApp)</label><input id="j-phone" type="tel" inputmode="numeric" maxlength="14" required autocomplete="tel" placeholder="300 000 0000"></div>
+      <div class="field"><label>Cumpleaños <small>(opcional, para tu regalo)</small></label>
+        <div class="two"><select id="j-bd" aria-label="Día"><option value="">Día</option></select><select id="j-bm" aria-label="Mes"><option value="">Mes</option></select></div></div>
+      <div class="field"><label for="j-pin">Clave de 4 números</label><input id="j-pin" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required autocomplete="new-password" placeholder="••••"><small>Con tu celular y esta clave ingresas desde cualquier teléfono.</small></div>
+      <p class="err" id="j-err" role="alert" hidden></p>
+      <button class="btn btn-primary" type="submit">Crear mi tarjeta</button>
+      <button class="btn btn-link" type="button" id="go-recover">Ya tengo tarjeta, ingresar</button>
+    </form>
+  </section>
+
+  <!-- Recuperar -->
+  <section id="view-recover" class="view" hidden>
+    <p class="eyebrow">Ingresar</p>
+    <h1 class="display sm">Qué bueno<br><em>verte de nuevo.</em></h1>
+    <form id="form-recover" class="form" autocomplete="off" novalidate>
+      <div class="field"><label for="r-phone">Celular</label><input id="r-phone" type="tel" inputmode="numeric" maxlength="14" required placeholder="300 000 0000"></div>
+      <div class="field"><label for="r-pin">Tu clave de 4 números</label><input id="r-pin" type="password" inputmode="numeric" maxlength="4" required placeholder="••••"></div>
+      <p class="err" id="r-err" role="alert" hidden></p>
+      <button class="btn btn-primary" type="submit">Ingresar</button>
+      <button class="btn btn-link" type="button" id="go-join">Crear una tarjeta nueva</button>
+    </form>
+  </section>
+
+  <!-- Tarjeta -->
+  <section id="view-card" class="view" hidden>
+    <div id="banners"></div>
+    <article class="loyalty" id="loyalty" aria-label="Tu tarjeta de fidelidad">
+      <div class="grain" aria-hidden="true"></div>
+      <div class="loyalty-top">
+        <div><p class="mini">Tarjeta de</p><p class="holder" id="holder"></p></div>
+        <svg class="loyalty-cup" aria-hidden="true"><use href="icons.svg#i-cup"/></svg>
+      </div>
+      <p class="big"><strong id="count">0</strong><span> / <span id="goal">10</span></span></p>
+      <ol class="stamps" id="stamps"></ol>
+      <p class="loyalty-foot" id="foot"></p>
+    </article>
+
+    <button class="btn btn-primary btn-big" id="btn-caja" type="button"></button>
+    <p class="fine center" id="caja-hint">Escanea el QR del mostrador con la cámara de tu celular.</p>
+  </section>
+
+  <!-- Premios -->
+  <section id="view-rewards" class="view" hidden>
+    <h2 class="h2">Tus premios</h2>
+    <ol class="timeline" id="timeline"></ol>
+    <h3 class="h3">Tus visitas</h3>
+    <ul class="list" id="history"></ul>
+  </section>
+
+  <!-- Visítanos -->
+  <section id="view-visit" class="view" hidden>
+    <h2 class="h2">Pásate por Nonos</h2>
+    <p class="lead">Café de especialidad, métodos de filtrado y buena energía. El espacio ideal para parchar, trabajar o leer.</p>
+    <div class="hours"><p class="hours-t">Horarios</p><div id="hours"></div></div>
+    <ul class="list links" id="links"></ul>
+    <button class="btn btn-link" id="btn-logout" type="button">Cerrar sesión en este celular</button>
+  </section>
+</main>
+
+<nav class="tabs" id="tabs" aria-label="Secciones" hidden>
+  <button data-view="card" class="tab is-on" type="button"><svg><use href="icons.svg#i-card"/></svg><span>Tarjeta</span></button>
+  <button data-view="rewards" class="tab" type="button"><svg><use href="icons.svg#i-gift"/></svg><span>Premios</span><i class="dot" id="tab-dot" hidden></i></button>
+  <button data-view="visit" class="tab" type="button"><svg><use href="icons.svg#i-pin"/></svg><span>Visítanos</span></button>
+</nav>
+
+<!-- Confirmar en caja -->
+<div class="sheet-bg" id="sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t">
+    <button class="sheet-x" id="sheet-x" type="button" aria-label="Cerrar"><svg><use href="icons.svg#i-x"/></svg></button>
+    <h2 id="sheet-t" class="h2">Confirma en caja</h2>
+    <p class="lead">Escanea el QR del mostrador, o escribe el código de 6 números que aparece debajo.</p>
+    <label for="code" class="sr">Código de caja</label>
+    <input id="code" class="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="000000">
+    <p class="err" id="sheet-err" role="alert" hidden></p>
+    <div id="sheet-actions" class="actions"></div>
+  </div>
+</div>
+
+<!-- Celebración / reseña -->
+<div class="sheet-bg" id="party" hidden>
+  <div class="sheet center" role="dialog" aria-modal="true" aria-labelledby="party-t">
+    <div class="medal" aria-hidden="true"><svg><use href="icons.svg#i-gift"/></svg></div>
+    <h2 id="party-t" class="h2"></h2>
+    <p class="lead" id="party-d"></p>
+    <div id="party-review" hidden>
+      <p class="review-q">¿Nos cuentas cómo te fue? Una reseña en Google toma 30 segundos y ayuda a que más gente nos encuentre.</p>
+      <a class="btn btn-primary" id="party-link" target="_blank" rel="noopener">Escribir una reseña</a>
+    </div>
+    <button class="btn btn-link" id="party-close" type="button">Listo</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="demo.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
